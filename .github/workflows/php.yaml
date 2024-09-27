@@ -2,7 +2,7 @@ name: PHP Composer and PHPUnit
 
 on:
   pull_request:
-    branches: [ main ]
+    branches:
   workflow_dispatch:
 
 jobs:
