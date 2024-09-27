@@ -1,0 +1,64 @@
+name: PHP Composer and PHPUnit
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: PHP ${{ matrix.php-version }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        php-version: [ 8.2, 8.3, 8.4 ]
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Set up PHP with required extensions
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, xml, ctype, tokenizer
+          coverage: xdebug
+          tools: composer
+
+      # 3. Cache Composer dependencies
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.composer/cache
+            vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      # 4. Install Composer dependencies
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
+
+      # 5. Run PHPUnit tests (without coverage)
+      - name: Run PHPUnit Tests
+        run: vendor/bin/phpunit
+
+      # 6. Generate code coverage reports (only on pull requests)
+      - name: Generate code coverage
+        if: github.event_name == 'pull_request'
+        run: |
+          mkdir -p coverage
+          vendor/bin/phpunit --coverage-clover coverage/clover.xml
+
+      # 7. Coverage Report as Comment (Clover) (only on pull requests)
+      - name: Coverage Report as Comment (Clover)
+        if: github.event_name == 'pull_request'
+        uses: lucassabreu/comment-coverage-clover@main
+        with:
+          file: coverage/clover.xml

@@ -1,0 +1,25 @@
+{
+    "name": "phillarmonic/cpf-cnpj",
+    "description": "A PHP library for validating and formatting CPF and CNPJ numbers.",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Phillarmonic\\CpfCnpj\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "Tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Phillarmonic Software",
+            "email": "phillarmonicsoftware@outlook.com"
+        }
+    ],
+    "require-dev": {
+        "phpunit/phpunit": "^10.0|^11.0"
+    }
+}

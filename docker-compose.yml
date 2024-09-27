@@ -1,0 +1,35 @@
+services:
+  workspace:
+    image: phillarmonic/frankenphp-workspace:1.2-php-8.3
+    environment:
+      PROJECT_ROOT: ${PROJECT_ROOT:-/var/www/html}
+      DOCUMENT_ROOT: ${DOCUMENT_ROOT:-/var/www/html/public}
+      XDEBUG_ENABLE: ${XDEBUG_ENABLE:-0}
+      XDEBUG_MODE: ${XDEBUG_MODE:-develop,debug,profile,coverage}
+      XDEBUG_START_WITH_REQUEST: ${XDEBUG_START_WITH_REQUEST:-yes}
+      PHP_IDE_CONFIG: ${PHP_IDE_CONFIG:-"serverName=frankenphp"}
+      PHP_INI_ERROR_REPORTING: ${PHP_INI_ERROR_REPORTING:-E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED}
+      # If you're using the local multi domain https feature, set the vhost here
+      # More info at https://github.com/Phillarmonic/domainpilot
+      DOMAINPILOT_VHOST: ${DOMAINPILOT_VHOST:-localhost}
+    volumes:
+      - ${HOST_SOURCE_FOLDER:-./src}:${PROJECT_ROOT:-/var/www/html}
+      # Certificates and other Caddy data
+      - caddy_data:/data
+    ports:
+      - ${HTTP_PORT:-8080}:80
+      - ${HTTPS_PORT:-443}:443
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+
+volumes:
+  redis_data:
+    driver: local
+  db_data:
+    driver: local
+  caddy_data:
+    driver: local
+  caddy_config:
+    driver: local
